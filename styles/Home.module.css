@@ -1,0 +1,76 @@
+.container {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+  background: #121212;
+  color: white;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.tabs button {
+  background: #1e1e1e;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  color: #ccc;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.tabs button.active {
+  background: #FF9A00;
+  color: white;
+}
+
+.score, .keys, .reward {
+  color: #FF9A00;
+  font-weight: bold;
+}
+
+.taskItem {
+  margin: 15px 0;
+  padding: 15px;
+  background: #1e1e1e;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.taskItem img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+}
+
+.streakDays, .rankList {
+  margin: 15px 0;
+  padding: 10px;
+  background: #1e1e1e;
+  border-radius: 8px;
+}
+
+.day {
+  margin: 6px 0;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.rankList div {
+  margin: 5px 0;
+}
+
+.invite code {
+  background: #1e1e1e;
+  padding: 5px;
+  border-radius: 4px;
+  font-size: 12px;
+}

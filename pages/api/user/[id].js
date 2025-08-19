@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb';
 
-const client = new MongoClient('mongodb+srv://<username>:<password>@cluster0.xxxxx.mongodb.net/keyquest');
+const client = new MongoClient('mongodb+srv://<kralmanyak>:<090716Mmk->@cluster0.oxpybks.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0');
 
 export default async function handler(req, res) {
   const { id } = req.query;

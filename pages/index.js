@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTelegram } from '../hooks/useTelegram';
-import styles from '../styles/Home.module.css';
 import { TonConnect } from '@tonconnect/sdk';
-
+import QRCode from 'qrcode.react';
 
 const Home = () => {
   const { user, tg } = useTelegram();
@@ -10,30 +9,39 @@ const Home = () => {
   const [keys, setKeys] = useState(0);
   const [multiplier, setMultiplier] = useState(1);
   const [isConnected, setIsConnected] = useState(false);
-  const [activeTab, setActiveTab] = useState('home');
+  const [showQR, setShowQR] = useState(false);
+  const [deepLink, setDeepLink] = useState('');
+  const [tonConnect, setTonConnect] = useState(null);
 
   useEffect(() => {
-    if (user) {
-      fetch(`/api/user/${user.id}`)
-        .then(res => res.json())
-        .then(data => {
-          setScore(data.score || 0);
-          setKeys(data.keys || 0);
-        });
+    const connector = new TonConnect({
+      manifestUrl: 'https://keyquest-nmx7.vercel.app/tonconnect-manifest.json',
+    });
+    setTonConnect(connector);
+  }, []);
+
+  const connectWallet = async () => {
+    if (!tonConnect) return;
+
+    try {
+      const session = await tonConnect.connect({
+        jsBridgeKey: 'tonkeeper',
+        items: [
+          {
+            name: 'ton_addr',
+            url: 'https://t.me/tonwallet',
+          },
+        ],
+      });
+
+      setDeepLink(session.deepLink);
+      setShowQR(true);
+      setIsConnected(true);
+      tg.showAlert('Cüzdan bağlandı!');
+    } catch (error) {
+      tg.showAlert('Bağlantı hatası: ' + error.message);
     }
-  }, [user]);
-
-  // useEffect içinde
-const connectWallet = async () => {
-  const tonConnect = new TonConnect({
-    manifestUrl: 'https://keyquest-cyan.vercel.app/tonconnect-manifest.json',
-  });
-
-  const ui = new TonConnectUI(tonConnect);
-  await ui.connect();
-  setIsConnected(true);
-  tg.showAlert('Cüzdan bağlandı!');
-};
+  };
 
   const buyKeys = async () => {
     if (!isConnected) return tg.showAlert('Cüzdan bağlanmadı.');
@@ -74,90 +82,102 @@ const connectWallet = async () => {
       if (Date.now() - startTime >= 10000) {
         clearInterval(timer);
         setScore(prev => prev + clicks);
-        tg.showAlert(`${clicks} kez tıkladın! ${clicks} puan kazandın.`);
+        tg.showAlert(`${clicks} kez tıkladın!`);
       }
     }, 100);
     document.onclick = () => clicks++;
   };
 
-  const renderHome = () => (
-    <div className={styles.home}>
-      <h2>🔑 Key Quest</h2>
-      <p>Puan: <span className={styles.score}>{score}</span></p>
-      <p>Anahtar: <span className={styles.keys}>{keys}</span></p>
-
-      <button onClick={connectWallet}>Cüzdan Bağla</button>
-      <button onClick={buyKeys}>5 Anahtar Satın Al (1 TON)</button>
-      <button onClick={openDoor}>Kapı Aç</button>
-      <button onClick={claimPrize}>Puanı Al</button>
-      <button onClick={startClickGame}>Tıklama Oyunu</button>
-    </div>
-  );
-
-  const renderTasks = () => (
-    <div className={styles.tasks}>
-      <h2>🎯 Sosyal Görevler</h2>
-      <div className={styles.taskItem}>
-        <img src="/images/join-telegram.png" alt="Join Telegram" />
-        <p>Telegram'a Katıl</p>
-        <p><span className={styles.reward}>+500 puan</span></p>
-        <button onClick={() => tg.showAlert('Görev tamamlandı!')}>Tamamla</button>
-      </div>
-      <div className={styles.taskItem}>
-        <img src="/images/follow-x.png" alt="Follow X" />
-        <p>X'te Takip Et</p>
-        <p><span className={styles.reward}>+1500 puan</span></p>
-        <button onClick={() => tg.showAlert('Görev tamamlandı!')}>Tamamla</button>
-      </div>
-    </div>
-  );
-
-  const renderStreak = () => (
-    <div className={styles.streak}>
-      <h2>🔥 Günlük Streak</h2>
-      <div className={styles.streakDays}>
-        <div className={styles.day}>Gün 1: +100 puan, 3 anahtar</div>
-        <div className={styles.day}>Gün 2: +110 puan, 3 anahtar</div>
-        <div className={styles.day}>Gün 3: +120 puan, 4 anahtar</div>
-      </div>
-      <button onClick={() => tg.showAlert('Günlük ödül alındı!')}>Al</button>
-    </div>
-  );
-
-  const renderLeaderboard = () => (
-    <div className={styles.leaderboard}>
-      <h2>🏆 Liderlik Tablosu</h2>
-      <div className={styles.rankList}>
-        <div>1. @user1: 10000</div>
-        <div>2. @user2: 9800</div>
-        <div>3. @user3: 9500</div>
-      </div>
-    </div>
-  );
-
-  const renderInvite = () => (
-    <div className={styles.invite}>
-      <h2>🔗 Arkadaş Davet Et</h2>
-      <p>Davet linki: <code>https://t.me/KeyQuestGameBot?start={user?.id}</code></p>
-      <button onClick={() => tg.showAlert('Davet linki kopyalandı!')}>Kopyala</button>
-    </div>
-  );
-
   return (
-    <div className={styles.container}>
-      <div className={styles.tabs}>
-        <button onClick={() => setActiveTab('home')} className={activeTab === 'home' ? styles.active : ''}>Ana</button>
-        <button onClick={() => setActiveTab('tasks')} className={activeTab === 'tasks' ? styles.active : ''}>Görevler</button>
-        <button onClick={() => setActiveTab('streak')} className={activeTab === 'streak' ? styles.active : ''}>Streak</button>
-        <button onClick={() => setActiveTab('leaderboard')} className={activeTab === 'leaderboard' ? styles.active : ''}>Lider</button>
-        <button onClick={() => setActiveTab('invite')} className={activeTab === 'invite' ? styles.active : ''}>Davet</button>
-      </div>
+    <div style={{
+      maxWidth: '400px',
+      margin: 'auto',
+      padding: '20px',
+      background: '#121212',
+      color: 'white',
+      fontFamily: 'Segoe UI, sans-serif'
+    }}>
+      <h2 style={{ color: '#FF9A00' }}>🔑 Key Quest</h2>
+      <p>Puan: <span style={{ color: '#FF9A00', fontWeight: 'bold' }}>{score}</span></p>
+      <p>Anahtar: <span style={{ color: '#FF9A00', fontWeight: 'bold' }}>{keys}</span></p>
 
-      {activeTab === 'home' && renderHome()}
-      {activeTab === 'tasks' && renderTasks()}
-      {activeTab === 'streak' && renderStreak()}
-      {activeTab === 'leaderboard' && renderLeaderboard()}
-      {activeTab === 'invite' && renderInvite()}
+      <button onClick={connectWallet} style={{
+        background: '#FF9A00',
+        border: 'none',
+        padding: '12px',
+        width: '100%',
+        margin: '10px 0',
+        borderRadius: '8px',
+        color: 'white',
+        fontWeight: 'bold',
+        cursor: 'pointer'
+      }}>
+        Cüzdan Bağla
+      </button>
+
+      <button onClick={buyKeys} style={{
+        background: '#FF9A00',
+        border: 'none',
+        padding: '12px',
+        width: '100%',
+        margin: '10px 0',
+        borderRadius: '8px',
+        color: 'white',
+        fontWeight: 'bold',
+        cursor: 'pointer'
+      }}>
+        5 Anahtar Satın Al (1 TON)
+      </button>
+
+      <button onClick={openDoor} style={{
+        background: '#FF9A00',
+        border: 'none',
+        padding: '12px',
+        width: '100%',
+        margin: '10px 0',
+        borderRadius: '8px',
+        color: 'white',
+        fontWeight: 'bold',
+        cursor: 'pointer'
+      }}>
+        Kapı Aç
+      </button>
+
+      <button onClick={claimPrize} style={{
+        background: '#FF9A00',
+        border: 'none',
+        padding: '12px',
+        width: '100%',
+        margin: '10px 0',
+        borderRadius: '8px',
+        color: 'white',
+        fontWeight: 'bold',
+        cursor: 'pointer'
+      }}>
+        Puanı Al
+      </button>
+
+      <button onClick={startClickGame} style={{
+        background: '#FF9A00',
+        border: 'none',
+        padding: '12px',
+        width: '100%',
+        margin: '10px 0',
+        borderRadius: '8px',
+        color: 'white',
+        fontWeight: 'bold',
+        cursor: 'pointer'
+      }}>
+        Tıklama Oyunu
+      </button>
+
+      {showQR && (
+        <div style={{ marginTop: '20px', textAlign: 'center' }}>
+          <QRCode value={deepLink} size={200} />
+          <p>Tonkeeper ile tara</p>
+          <button onClick={() => setShowQR(false)}>Kapat</button>
+        </div>
+      )}
     </div>
   );
 };

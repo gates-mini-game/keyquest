@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useTelegram } from '../hooks/useTelegram';
 import styles from '../styles/Home.module.css';
+import { TonConnect } from '@tonconnect/sdk';
+import { TonConnectUI } from '@tonconnect/qr-code';
 
 const Home = () => {
   const { user, tg } = useTelegram();
@@ -21,17 +23,17 @@ const Home = () => {
     }
   }, [user]);
 
-  const connectWallet = async () => {
-    if (!window.TonConnectUI) {
-      await import('@tonconnect/ui');
-    }
-    const connector = new window.TonConnectUI({
-      manifestUrl: 'https://keyquest.vercel.app/tonconnect-manifest.json',
-    });
-    await connector.connect();
-    setIsConnected(true);
-    tg.showAlert('Cüzdan bağlandı!');
-  };
+  // useEffect içinde
+const connectWallet = async () => {
+  const tonConnect = new TonConnect({
+    manifestUrl: 'https://keyquest-cyan.vercel.app/tonconnect-manifest.json',
+  });
+
+  const ui = new TonConnectUI(tonConnect);
+  await ui.connect();
+  setIsConnected(true);
+  tg.showAlert('Cüzdan bağlandı!');
+};
 
   const buyKeys = async () => {
     if (!isConnected) return tg.showAlert('Cüzdan bağlanmadı.');

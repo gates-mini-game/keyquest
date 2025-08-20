@@ -182,4 +182,39 @@ const Home = () => {
   );
 };
 
+
+// AdsGram Reklam Fonksiyonu
+const showAd = async () => {
+  try {
+    // AdsGram script yüklü mü kontrol et
+    if (!window.Adsgram) {
+      await loadScript('https://adsgram.app/sdk/create.js');
+    }
+
+    // Reklamı göster (Block ID = 12345)
+    window.Adsgram.showAd(12345).then(() => {
+      // Reklam başarıyla izlendi
+      setKeys(prev => prev + 5);
+      tg.showAlert('5 anahtar kazandın!');
+    }).catch((error) => {
+      // Kullanıcı reklamı izlemedi veya kapatırsa
+      console.log('Reklam izlenmedi:', error);
+    });
+  } catch (err) {
+    tg.showAlert('Reklam yüklenemedi. Daha sonra tekrar dene.');
+  }
+};
+
+// Script Yükleme Fonksiyonu
+const loadScript = (src) => {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Script yüklenemedi'));
+    document.head.appendChild(script);
+  });
+};
+
 export default Home;

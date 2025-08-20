@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTelegram } from '../hooks/useTelegram';
 import styles from '../styles/Home.module.css';
+import { TonConnect } from '@tonconnect/sdk';
 
 const Home = () => {
   const { user, tg } = useTelegram();

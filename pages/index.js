@@ -196,7 +196,7 @@ const showAd = async () => {
     }
 
     // Reklamı göster (Block ID = 12345)
-    window.Adsgram.showAd(12345).then(() => {
+    window.Adsgram.showAd(int-14050).then(() => {
       // Reklam başarıyla izlendi
       setKeys(prev => prev + 5);
       tg.showAlert('5 anahtar kazandın!');

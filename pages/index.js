@@ -129,6 +129,10 @@ const Home = () => {
         5 Anahtar Satın Al (1 TON)
       </button>
 
+     <button onClick={showAd} className={styles.adBtn}>
+    🎬 Reklam İzle, 5 Anahtar Kazan!
+     </button>
+          
       <button onClick={openDoor} style={{
         background: '#FF9A00',
         border: 'none',

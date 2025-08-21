@@ -43,10 +43,10 @@ const Home = () => {
 
   // Cüzdan Bağlantısı (TonConnect UI)
   const connectWallet = async () => {
-    if (!window.TonConnectUI) {
-      await import('@tonconnect/ui');
+    if (!window.TonConnectSDK) {
+      await import('@tonconnect/sdk');
     }
-    const connector = new window.TonConnectUI({
+    const connector = new window.TonConnectSDK({
       manifestUrl: 'https://keyquest.vercel.app/tonconnect-manifest.json',
     });
     await connector.connect();
